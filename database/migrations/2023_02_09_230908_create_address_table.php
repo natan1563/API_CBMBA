@@ -17,8 +17,8 @@ return new class extends Migration
             $table->id();
             $table->string('zipcode', 10);
             $table->string('public_area', 255);
-            $table->string('complement', 255);
-            $table->string('neighborhood', 255);
+            $table->string('complement', 255)->nullable();
+            $table->string('neighborhood', 100);
             $table->string('locality', 100);
             $table->char('uf', 2);
             $table->timestamps();
