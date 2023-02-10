@@ -22,7 +22,12 @@ class UserController extends Controller
 
     public function index()
     {
-        $users = $this->user->all();
+        $users = $this->user->paginate(10);
+
+        foreach ($users as $user){
+            $user->address;
+        }
+
         return response()->json($users, 200);
     }
 
@@ -96,6 +101,16 @@ class UserController extends Controller
         $user->address;
 
         return response()->json($user);
+    }
+
+    public function destroy($id)
+    {
+        $user = User::find($id);
+        if (!$user)
+            throw new NotFoundHttpException('Could not find the user, please check your id.');
+
+        $this->user->destroy($id);
+        return response()->noContent();
     }
 
     private function validateFullRequestData(Request $request, $unsetPassword = false) {
