@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class UserController extends Controller
 {
@@ -67,5 +68,14 @@ class UserController extends Controller
 
         return response()->json($user, 201);
 
+    }
+
+    public function show($id) {
+        $user = User::find($id);
+        if (!$user)
+            throw new NotFoundHttpException('Could not find the user, please check your id.');
+
+        $user->address;
+        return response()->json($user);
     }
 }
