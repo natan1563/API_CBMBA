@@ -27,19 +27,7 @@ class UserController extends Controller
     }
 
     public function store(Request $request) {
-        $requestValidate = Validator::make($request->all(), [
-            'name'         => 'required|max:160',
-            'email'        => 'required|email|max:160',
-            'password'     => 'required|max:255|min:6',
-            'zipcode'      => 'required|max:10',
-            'public_area'  => 'required|max:255',
-            'neighborhood' => 'required|max:100',
-            'locality'     => 'required|max:100',
-            'uf'           => 'required|max:2|min:2'
-        ]);
-
-        if ($requestValidate->fails())
-            throw new BadRequestHttpException($requestValidate->errors()->first());
+        $this->validateFullRequestData($request);
 
         $emailAlreadyExists = $this->user->where('email', $request->get('email'))->first();
 
@@ -77,5 +65,56 @@ class UserController extends Controller
 
         $user->address;
         return response()->json($user);
+    }
+
+    public function update(Request $request, $id) {
+        $this->validateFullRequestData($request, true);
+
+        $addressData = $request->only(
+            'zipcode',
+            'public_area',
+            'neighborhood',
+            'locality',
+            'uf'
+        );
+
+        $user = $this->user->where('email', $request->get('email'))->first();
+        if (!!$user && $user->id != $id)
+            throw new BadRequestHttpException('User already registered.');
+
+        $address = Address::find($user->address_id);
+        $address->zipcode = $addressData['zipcode'];
+        $address->public_area = $addressData['public_area'];
+        $address->neighborhood = $addressData['neighborhood'];
+        $address->locality = $addressData['locality'];
+        $address->uf = $addressData['uf'];
+        $address->save();
+
+        $user->name = $request->get('name');
+        $user->email = $request->get('email');
+        $user->save();
+        $user->address;
+
+        return response()->json($user);
+    }
+
+    private function validateFullRequestData(Request $request, $unsetPassword = false) {
+        $fields = [
+            'name'         => 'required|max:160',
+            'email'        => 'required|email|max:160',
+            'password'     => 'required|max:255|min:6',
+            'zipcode'      => 'required|max:10',
+            'public_area'  => 'required|max:255',
+            'neighborhood' => 'required|max:100',
+            'locality'     => 'required|max:100',
+            'uf'           => 'required|max:2|min:2'
+        ];
+
+        if ($unsetPassword)
+            unset($fields['password']);
+
+        $requestValidate = Validator::make($request->all(), $fields);
+        if ($requestValidate->fails())
+            throw new BadRequestHttpException($requestValidate->errors()->first());
     }
 }
