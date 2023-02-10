@@ -5,6 +5,7 @@ namespace App\Exceptions;
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -45,16 +46,22 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
-        $this->renderable(function (BadRequestHttpException $e) {
+        $errorResponse = function (Exception $e, $statusCode = 500) {
             return response()->json([
                 'error' => $e->getMessage(),
-            ], 400);
+            ], $statusCode);
+        };
+
+        $this->renderable(function (BadRequestHttpException $e) use ($errorResponse) {
+            return $errorResponse($e, 400);
         });
 
-        $this->renderable(function (Exception $e) {
-            return response()->json([
-                'error' => $e->getMessage(),
-            ], 500);
+        $this->renderable(function (NotFoundHttpException $e) use ($errorResponse) {
+            return $errorResponse($e, 404);
+        });
+
+        $this->renderable(function (Exception $e) use ($errorResponse) {
+            return $errorResponse($e, 500);
         });
 
     }
