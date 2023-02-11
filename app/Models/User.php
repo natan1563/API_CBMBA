@@ -20,6 +20,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'avatar',
         'password',
         'address_id'
     ];
@@ -44,6 +45,6 @@ class User extends Authenticatable
     ];
 
     public function address() {
-        return $this->hasOne(Address::class, 'id');
+        return $this->hasOne(Address::class, 'id', 'address_id');
     }
 }

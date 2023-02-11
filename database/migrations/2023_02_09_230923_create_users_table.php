@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('name', 160);
             $table->string('email', 160)->unique();
             $table->string('password', 255);
+            $table->string('avatar')->nullable();
             $table->unsignedBigInteger('address_id')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();

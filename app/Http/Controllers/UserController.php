@@ -56,11 +56,16 @@ class UserController extends Controller
         $userData['address_id'] = $address->id;
         $userData['password'] = Hash::make($userData['password']);
 
+        if ($request->file('avatar')->isValid()) {
+            $userData['avatar'] = $request->file('avatar')->hashName();
+            $userAvatarController = new UserAvatarController();
+            $userAvatarController->uploadFile($request);
+        }
+
         $user = User::create($userData);
         $user->address;
 
         return response()->json($user, 201);
-
     }
 
     public function show($id) {
