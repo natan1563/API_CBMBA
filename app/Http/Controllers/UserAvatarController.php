@@ -2,14 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class UserAvatarController extends Controller
 {
     private $driver;
+    const STORAGE_FOLDER = 'profile';
 
     public function __construct() {
         $this->driver = env('UPLOAD_DRIVER');
@@ -22,13 +27,11 @@ class UserAvatarController extends Controller
             throw new BadRequestException('The parameter avatar is required.');
 
         if ($request->file('avatar')->isValid()) {
-            $userAvatarController = new UserAvatarController();
-
             if (!!$user->avatar)
-                $userAvatarController->removeFile($user->avatar);
+                $this->removeFile($user->avatar);
 
             $user->avatar = $request->file('avatar')->hashName();
-            $path = $userAvatarController->uploadFile($request);
+            $path = $this->uploadFile($request);
 
             if (!$path)
                 throw new Exception('Upload file failed.');
@@ -40,13 +43,30 @@ class UserAvatarController extends Controller
         return response($user, 200);
     }
 
+    public function showProfile($imageName) {
+        $filePath = self::STORAGE_FOLDER . '/' . $imageName;
+        if (!Storage::disk($this->driver)->exists($filePath))
+            throw new NotFoundHttpException('Could not find the uploaded image');
+
+        $content = $this->getProfileImage($filePath);
+        $mime = Storage::mimeType($filePath);
+        $response = Response::make($content, 200);
+        $response->header("Content-Type", $mime);
+
+        return $response;
+    }
+
+    private function getProfileImage($filePath) {
+        return Storage::disk($this->driver)->get($filePath);
+    }
+
     public function uploadFile(Request $request)
     {
         $avatar = $request->file('avatar');
         $fileName = $avatar->hashName();
         $isS3Driver = $this->driver === 's3';
         $path = $request->file('avatar')->storePubliclyAs(
-            'profile',
+            self::STORAGE_FOLDER,
             $fileName,
             ($isS3Driver ? 's3' : [])
         );
@@ -54,7 +74,7 @@ class UserAvatarController extends Controller
     }
 
     public function removeFile($fileName) {
-        $path = Storage::disk($this->driver)->delete("profile/{$fileName}");
+        $path = Storage::disk($this->driver)->delete(self::STORAGE_FOLDER . '/' . $fileName);
         return !!$path;
     }
 }

@@ -23,3 +23,4 @@ Route::post('/auth', [AuthController::class, 'login']);
 Route::delete('/auth', [AuthController::class, 'logout'])->middleware('api.verify.auth');
 
 Route::patch('/avatar', [UserAvatarController::class, 'updateProfileImage'])->middleware('api.verify.auth');
+Route::get('/avatar/{imageName}', [UserAvatarController::class, 'showProfile']);
