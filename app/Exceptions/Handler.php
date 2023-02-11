@@ -4,6 +4,7 @@ namespace App\Exceptions;
 
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Validation\UnauthorizedException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
@@ -58,6 +59,10 @@ class Handler extends ExceptionHandler
 
         $this->renderable(function (NotFoundHttpException $e) use ($errorResponse) {
             return $errorResponse($e, 404);
+        });
+
+        $this->renderable(function (UnauthorizedException $e) use ($errorResponse) {
+            return $errorResponse($e, 401);
         });
 
         $this->renderable(function (Exception $e) use ($errorResponse) {

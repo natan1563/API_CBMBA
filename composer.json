@@ -8,11 +8,13 @@
         "php": "^8.0.2",
         "fruitcake/laravel-cors": "^3.0",
         "guzzlehttp/guzzle": "^7.2",
+        "illuminate/auth": "^9.51",
         "intervention/image": "^2.7",
         "laravel/framework": "^9.19",
         "laravel/sanctum": "^3.0",
         "laravel/tinker": "^2.7",
-        "league/flysystem-aws-s3-v3": "^3.12"
+        "league/flysystem-aws-s3-v3": "^3.12",
+        "php-open-source-saver/jwt-auth": "^2.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

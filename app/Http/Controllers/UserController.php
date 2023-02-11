@@ -6,8 +6,10 @@ use App\Models\Address;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -35,7 +37,6 @@ class UserController extends Controller
         $this->validateFullRequestData($request);
 
         $emailAlreadyExists = $this->user->where('email', $request->get('email'))->first();
-
         if (!!$emailAlreadyExists)
             throw new BadRequestHttpException('Email already exists');
 
@@ -64,8 +65,16 @@ class UserController extends Controller
 
         $user = User::create($userData);
         $user->address;
+        $token = JWTAuth::fromUser($user);
 
-        return response()->json($user, 201);
+        return response()->json(
+            [
+                'message' => 'User created successfully',
+                'user'    => $user,
+                'token'   => $token
+            ],
+            201
+        );
     }
 
     public function show($id) {
