@@ -6,7 +6,6 @@ use App\Models\Address;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
@@ -98,6 +97,9 @@ class UserController extends Controller
         );
 
         $user = $this->user->where('email', $request->get('email'))->first();
+        if (!$user)
+            throw new NotFoundHttpException('User not found.');
+
         if (!!$user && $user->id != $id)
             throw new BadRequestHttpException('User already registered.');
 
@@ -114,7 +116,10 @@ class UserController extends Controller
         $user->save();
         $user->address;
 
-        return response()->json($user);
+        return response()->json([
+            'message' => 'User updated successfully',
+            'user'    => $user,
+        ]);
     }
 
     public function destroy($id)
