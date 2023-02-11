@@ -19,3 +19,4 @@ use Illuminate\Support\Facades\Route;
 Route::resource('/users', UserController::class, ['except' => 'store'])->middleware('api.verify.auth');
 Route::post('/users', [UserController::class, 'store']);
 Route::post('/auth', [AuthController::class, 'login']);
+Route::delete('/auth', [AuthController::class, 'logout']);
