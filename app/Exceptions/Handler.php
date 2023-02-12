@@ -66,7 +66,9 @@ class Handler extends ExceptionHandler
         });
 
         $this->renderable(function (Exception $e) use ($errorResponse) {
-            return $errorResponse($e, 500);
+            return response()->json([
+                'error' => 'Internal Server Error',
+            ], 500);
         });
 
     }
