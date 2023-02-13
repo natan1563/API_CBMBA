@@ -142,6 +142,15 @@ class UserController extends Controller
         if (!$user)
             throw new NotFoundHttpException('Could not find the user, please check your id.');
 
+        try {
+            $userAvatarController = new UserAvatarController();
+            if (!is_null($user->avatar)) {
+                $userAvatarController->removeFile($user->avatar);
+            }
+        } catch (\Exception $e) {
+            // Possivel LOG - Bugsnag
+        }
+
         $this->user->destroy($id);
         return response()->noContent();
     }
