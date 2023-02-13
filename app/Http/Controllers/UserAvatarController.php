@@ -26,7 +26,7 @@ class UserAvatarController extends Controller
         if (!$request->file('avatar'))
             throw new BadRequestException('The parameter avatar is required.');
 
-        if ($request->file('avatar')->isValid()) {
+        if ($request->file('avatar') && $request->file('avatar')->isValid()) {
             if (!!$user->avatar)
                 $this->removeFile($user->avatar);
 
