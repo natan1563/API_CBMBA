@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -23,7 +24,7 @@ class UserController extends Controller
 
     public function index()
     {
-        $users = $this->user->paginate(10);
+        $users = $this->user->paginate(50);
 
         foreach ($users as $user){
             $user->address;
@@ -56,7 +57,7 @@ class UserController extends Controller
         $userData['address_id'] = $address->id;
         $userData['password'] = Hash::make($userData['password']);
 
-        if ($request->file('avatar')->isValid()) {
+        if ($request->file('avatar') && $request->file('avatar')->isValid()) {
             $userData['avatar'] = $request->file('avatar')->hashName();
             $userAvatarController = new UserAvatarController();
             $userAvatarController->uploadFile($request);
@@ -109,11 +110,28 @@ class UserController extends Controller
         $address->neighborhood = $addressData['neighborhood'];
         $address->locality = $addressData['locality'];
         $address->uf = $addressData['uf'];
-        $address->save();
 
         $user->name = $request->get('name');
         $user->email = $request->get('email');
+
+        $userAvatarController = new UserAvatarController();
+
+        if (!$request->file('avatar'))
+            throw new BadRequestException('The parameter avatar is required.');
+
+        if ($request->file('avatar') && $request->file('avatar')->isValid()) {
+            if (!!$user->avatar)
+                $userAvatarController->removeFile($user->avatar);
+
+            $user->avatar = $request->file('avatar')->hashName();
+            $path = $userAvatarController->uploadFile($request);
+            if (!$path)
+                throw new Exception('Upload file failed.');
+         }
+
+        $address->save();
         $user->save();
+
         $user->address;
 
         return response()->json([
