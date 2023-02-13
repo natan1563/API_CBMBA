@@ -20,6 +20,7 @@ Route::resource('/users', UserController::class, ['except' => 'store'])->middlew
 Route::post('/users', [UserController::class, 'store']);
 
 Route::post('/auth', [AuthController::class, 'login']);
+Route::get('/auth/check', [AuthController::class, 'check'])->middleware('api.verify.auth');
 Route::delete('/auth', [AuthController::class, 'logout'])->middleware('api.verify.auth');
 
 Route::patch('/avatar', [UserAvatarController::class, 'updateProfileImage'])->middleware('api.verify.auth');
