@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class UserAvatarController extends Controller
@@ -24,7 +22,7 @@ class UserAvatarController extends Controller
         $user = $request->user();
 
         if (!$request->file('avatar'))
-            throw new BadRequestException('The parameter avatar is required.');
+            throw new BadRequestException('O avatar é obrigatório.');
 
         if ($request->file('avatar') && $request->file('avatar')->isValid()) {
             if (!!$user->avatar)
@@ -34,7 +32,7 @@ class UserAvatarController extends Controller
             $path = $this->uploadFile($request);
 
             if (!$path)
-                throw new Exception('Upload file failed.');
+                throw new Exception('Falhao ao salvar o avatar.');
 
             $user->save();
             $user->address;
@@ -46,7 +44,7 @@ class UserAvatarController extends Controller
     public function showProfile($imageName) {
         $filePath = self::STORAGE_FOLDER . '/' . $imageName;
         if (!Storage::disk($this->driver)->exists($filePath))
-            throw new NotFoundHttpException('Could not find the uploaded image');
+            throw new NotFoundHttpException('Não foi possível localizar o avatar.');
 
         $content = $this->getProfileImage($filePath);
         $mime = Storage::mimeType($filePath);

@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
-use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -38,7 +37,7 @@ class UserController extends Controller
 
         $emailAlreadyExists = $this->user->where('email', $request->get('email'))->first();
         if (!!$emailAlreadyExists)
-            throw new BadRequestHttpException('Email already exists');
+            throw new BadRequestHttpException('E-mail já está em uso.');
 
         $addressData = $request->only(
             'zipcode',
@@ -50,7 +49,7 @@ class UserController extends Controller
         $address = Address::create($addressData);
 
         if (!$address)
-            throw new Exception('Fail on save address.');
+            throw new Exception('Falha ao salvar os dados de endereço.');
 
         $userData = $request->only('name', 'email', 'password');
 
@@ -69,7 +68,7 @@ class UserController extends Controller
 
         return response()->json(
             [
-                'message' => 'User created successfully',
+                'message' => 'Usuário criado com sucesso.',
                 'user'    => $user,
                 'token'   => $token
             ],
@@ -80,7 +79,7 @@ class UserController extends Controller
     public function show($id) {
         $user = User::find($id);
         if (!$user)
-            throw new NotFoundHttpException('Could not find the user, please check your id.');
+            throw new NotFoundHttpException('Não foi possível carregar os dados do usuário.');
 
         $user->address;
         return response()->json($user);
@@ -99,10 +98,10 @@ class UserController extends Controller
 
         $user = $this->user->where('email', $request->get('email'))->first();
         if (!$user)
-            throw new NotFoundHttpException('User not found.');
+            throw new NotFoundHttpException('Usuário não encontrado.');
 
         if (!!$user && $user->id != $id)
-            throw new BadRequestHttpException('User already registered.');
+            throw new BadRequestHttpException('Usuário já cadastrado.');
 
         $address = Address::find($user->address_id);
         $address->zipcode = $addressData['zipcode'];
@@ -122,7 +121,7 @@ class UserController extends Controller
             $user->avatar = $request->file('avatar')->hashName();
             $path = $userAvatarController->uploadFile($request);
             if (!$path)
-                throw new Exception('Upload file failed.');
+                throw new Exception('Falha ao salvar o avatar.');
          }
 
         $address->save();
@@ -131,7 +130,7 @@ class UserController extends Controller
         $user->address;
 
         return response()->json([
-            'message' => 'User updated successfully',
+            'message' => 'Usuário atualizado com sucesso',
             'user'    => $user,
         ]);
     }
@@ -140,7 +139,7 @@ class UserController extends Controller
     {
         $user = User::find($id);
         if (!$user)
-            throw new NotFoundHttpException('Could not find the user, please check your id.');
+            throw new NotFoundHttpException('Não foi possível carregar os dados do usuário.');
 
         try {
             $userAvatarController = new UserAvatarController();
