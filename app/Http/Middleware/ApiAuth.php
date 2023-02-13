@@ -26,11 +26,11 @@ class ApiAuth extends BaseMiddleware
             $request->merge(['user' => auth('api')->user()]);
         } catch (Exception $e) {
             if ($e instanceof TokenInvalidException) {
-                return response()->json(['status' => 'Token is Invalid'], 401);
+                return response()->json(['error' => 'Token is Invalid'], 401);
             } else if ($e instanceof TokenExpiredException) {
-                return response()->json(['status' => 'Token is Expired'], 401);
+                return response()->json(['error' => 'Token is Expired'], 401);
             } else {
-                return response()->json(['status' => 'Authorization Token not found'], 401);
+                return response()->json(['error' => 'Authorization Token not found'], 401);
             }
         }
 
