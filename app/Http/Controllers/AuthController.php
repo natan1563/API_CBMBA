@@ -48,4 +48,10 @@ class AuthController extends Controller
         ]);
     }
 
+    public function check() {
+        return response([
+            'message' => 'Token is valid'
+        ]);
+    }
+
 }
