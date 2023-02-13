@@ -114,12 +114,8 @@ class UserController extends Controller
         $user->name = $request->get('name');
         $user->email = $request->get('email');
 
-        $userAvatarController = new UserAvatarController();
-
-        if (!$request->file('avatar'))
-            throw new BadRequestException('The parameter avatar is required.');
-
         if ($request->file('avatar') && $request->file('avatar')->isValid()) {
+            $userAvatarController = new UserAvatarController();
             if (!!$user->avatar)
                 $userAvatarController->removeFile($user->avatar);
 
