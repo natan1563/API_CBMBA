@@ -151,6 +151,12 @@ class UserController extends Controller
         }
 
         $this->user->destroy($id);
+
+        if (!is_null($user->address_id)) {
+            // Solução para contornar o BUG de delete CASCADE no Laravel 9
+            Address::destroy($user->address_id);
+        }
+
         return response()->noContent();
     }
 
